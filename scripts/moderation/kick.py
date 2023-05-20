@@ -1,20 +1,21 @@
 import discord 
 from discord.ext import commands
 
-import dotenv, os
+import os, dotenv
+from typing import Final
 
 
 
-bot = commands.Bot(command_prefix='!', intents=discord.Intents.all())
+BOT : Final[commands.Bot] = commands.Bot(command_prefix='!', intents=discord.Intents.all())
 
-@bot.event
+@BOT.event
 async def on_ready():
-    print(f'Logged in as {bot.user.name} - {bot.user.id}')
+    print(f'Logged in as {BOT.user.name} - {BOT.user.id}')
     print('------')
 
 
 
-@bot.command()
+@BOT.command()
 async def kick(ctx : commands.Context, member : discord.Member, reason : str) -> discord.Message:
     is_in_private_messages = ctx.guild is None and isinstance(ctx.author, discord.User)
     if is_in_private_messages:
@@ -43,4 +44,4 @@ if __name__ == '__main__':
     if TOKEN is None:
         raise ValueError('Token not found')
     
-    bot.run(TOKEN)
+    BOT.run(TOKEN)

@@ -1,20 +1,21 @@
 import discord 
 from discord.ext import commands
 
-import dotenv, os
+import os, dotenv
+from typing import Final
 
 
 import random # needed for random.choice() function to choise a random response
 
-bot = commands.Bot(command_prefix='!', intents=discord.Intents.all())
+BOT : Final[commands.Bot] = commands.Bot(command_prefix='!', intents=discord.Intents.all())
 
-@bot.event
+@BOT.event
 async def on_ready():
-    print(f'Logged in as {bot.user.name} - {bot.user.id}')
+    print(f'Logged in as {BOT.user.name} - {BOT.user.id}')
     print('------')
 
 
-@bot.command(name='8ball')
+@BOT.command(name='8ball')
 async def eight_ball_game(ctx : commands.Context, *, question : str) -> discord.Message:
     possible_responses = [
         'That is a resounding no',
@@ -38,4 +39,4 @@ if __name__ == '__main__':
     if TOKEN is None:
         raise ValueError('Token not found')
     
-    bot.run(TOKEN)
+    BOT.run(TOKEN)

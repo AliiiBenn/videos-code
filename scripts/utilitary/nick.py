@@ -1,20 +1,22 @@
 import discord 
 from discord.ext import commands
 
-import dotenv, os
+import os, dotenv
+from typing import Final
+
+from typing import Final, Optional
 
 
+BOT : Final[commands.Bot] = commands.Bot(command_prefix='!', intents=discord.Intents.all())
 
-bot = commands.Bot(command_prefix='!', intents=discord.Intents.all())
-
-@bot.event
+@BOT.event
 async def on_ready():
-    print(f'Logged in as {bot.user.name} - {bot.user.id}')
+    print(f'Logged in as {BOT.user.name} - {BOT.user.id}')
     print('------')
 
 
-@bot.command()
-async def nick(ctx : commands.Context, member : discord.Member, *, nickname : str | None = "") -> discord.Message:
+@BOT.command()
+async def nick(ctx : commands.Context, member : discord.Member, *, nickname : Optional[str] = None) -> discord.Message:
     is_in_private_messages = ctx.guild is None and isinstance(ctx.author, discord.User)
     if is_in_private_messages:
         return await ctx.send('This command cannot be used in private messages')
@@ -27,12 +29,11 @@ async def nick(ctx : commands.Context, member : discord.Member, *, nickname : st
     if not is_member_nickable:
         return await ctx.send('You cannot nick this member')
     
-    if nickname == "":
-        nickname = None
         
     await member.edit(nick=nickname)
     
     return await ctx.send(f'Changed {member.name}#{member.discriminator}\'s nickname to {nickname}')
+
 
 if __name__ == '__main__':
     dotenv.load_dotenv()
@@ -41,4 +42,4 @@ if __name__ == '__main__':
     if TOKEN is None:
         raise ValueError('Token not found')
     
-    bot.run(TOKEN)
+    BOT.run(TOKEN)

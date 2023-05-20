@@ -1,19 +1,20 @@
 import discord 
 from discord.ext import commands
 
-import dotenv, os
+import os, dotenv
+from typing import Final
 
 
 
-bot = commands.Bot(command_prefix='!', intents=discord.Intents.all())
+BOT : Final[commands.Bot] = commands.Bot(command_prefix='!', intents=discord.Intents.all())
 
-@bot.event
+@BOT.event
 async def on_ready():
-    print(f'Logged in as {bot.user.name} - {bot.user.id}')
+    print(f'Logged in as {BOT.user.name} - {BOT.user.id}')
     print('------')
 
 
-@bot.command(name="userinfo")
+@BOT.command(name="userinfo")
 async def user_info(ctx : commands.Context, user : discord.User | discord.Member | None = None) -> discord.Message:
     if user is None:
         user = ctx.author
@@ -26,7 +27,7 @@ async def user_info(ctx : commands.Context, user : discord.User | discord.Member
     if isinstance(user, discord.Member):
         embed.add_field(name="Joined at", value=user.joined_at.strftime("%d/%m/%Y %H:%M:%S"), inline=False)
         embed.add_field(name="Top role", value=user.top_role.mention, inline=False)
-        embed.add_field(name="Bot", value=user.bot, inline=False)
+        embed.add_field(name="Bot", value=user.BOT, inline=False)
         embed.add_field(name="Nickname", value=user.nick, inline=False)
         embed.add_field(name="Status", value=user.status, inline=False)
         embed.add_field(name="Activity", value=user.activity, inline=False)
@@ -42,4 +43,4 @@ if __name__ == '__main__':
     if TOKEN is None:
         raise ValueError('Token not found')
     
-    bot.run(TOKEN)
+    BOT.run(TOKEN)

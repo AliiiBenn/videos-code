@@ -1,20 +1,21 @@
 import discord 
 from discord.ext import commands
 
-import dotenv, os
+import os, dotenv
+from typing import Final
 
 
 
-bot = commands.Bot(command_prefix='!', intents=discord.Intents.all())
+BOT : Final[commands.Bot] = commands.Bot(command_prefix='!', intents=discord.Intents.all())
 
-@bot.event
+@BOT.event
 async def on_ready():
-    print(f'Logged in as {bot.user.name} - {bot.user.id}')
+    print(f'Logged in as {BOT.user.name} - {BOT.user.id}')
     print('------')
 
 
-@bot.command()
-async def mute(ctx : commands.Context, member : discord.Member, *, reason : str = "") -> discord.Message:
+@BOT.command()
+async def unmute(ctx : commands.Context, member : discord.Member, *, reason : str = "") -> discord.Message:
     is_in_private_messages = ctx.guild is None and isinstance(ctx.author, discord.User)
     if is_in_private_messages:
         return await ctx.send('This command cannot be used in private messages')
@@ -25,7 +26,7 @@ async def mute(ctx : commands.Context, member : discord.Member, *, reason : str 
     
     is_member_kickable = ctx.author.top_role > member.top_role
     if not is_member_kickable:
-        return await ctx.send('You cannot mute this member')
+        return await ctx.send('You cannot unmute this member')
     
     is_in_voice_channel = member.voice is not None and member.voice.channel is not None
     if not is_in_voice_channel:
@@ -34,9 +35,9 @@ async def mute(ctx : commands.Context, member : discord.Member, *, reason : str 
     if reason == "":
         reason = "No reason provided"
         
-    await member.edit(mute=True,reason=reason)
+    await member.edit(mute=False,reason=reason)
     
-    return await ctx.send(f':mute: Muted {member.name}#{member.discriminator} for {reason}')
+    return await ctx.send(f'unmuted {member.name}#{member.discriminator} for {reason}')
 
 
 if __name__ == '__main__':
@@ -46,4 +47,4 @@ if __name__ == '__main__':
     if TOKEN is None:
         raise ValueError('Token not found')
     
-    bot.run(TOKEN)
+    BOT.run(TOKEN)
