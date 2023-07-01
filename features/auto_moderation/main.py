@@ -4,45 +4,7 @@ import discord
 import dotenv
 from discord.ext import commands
 
-from abc import ABC, abstractmethod
-
-
-
-class AutoModerationStrategy(ABC):
-    @abstractmethod
-    def check(self, message : discord.Message) -> bool:
-        pass 
-
-
-
-class MajusculeStrategy(AutoModerationStrategy):
-    def get_content(self, message : discord.Message) -> str:
-        return message.content
-    
-    def get_maj_count(self, content : str) -> int:
-        return len([character for character in content if character.isupper()])
-    
-    def get_percentage(self, maj_count : int, content : str) -> float:
-        return maj_count / len(content)
-    
-    def check_percentage(self, percentage : float) -> bool:
-        LIMIT = 0.25
-        return percentage > LIMIT
-    
-    
-    def check(self, message : discord.Message) -> bool:
-        message_content = self.get_content(message)
-        message_maj_count = self.get_maj_count(message_content)
-        maj_percentage = self.get_percentage(message_maj_count, message_content)
-        
-        return self.check_percentage(maj_percentage)
-        
-
-
-
-class DiscordLinkStrategy(AutoModerationStrategy):
-    def check(self, message : discord.Message) -> bool:
-        return "discord.gg" in message.content or "discordapp.com/invite" in message.content
+import strategies
 
 
 
@@ -60,12 +22,12 @@ class Bot(commands.Bot):
         
         
     async def on_message(self, message : discord.Message) -> None:
-        strategies = [MajusculeStrategy(), DiscordLinkStrategy()]
+        moderation_strategies = [strategies.MajusculeStrategy(), strategies.DiscordLinkStrategy()]
         
         if message.author.bot or message.guild is None :
             return
         
-        for strategy in strategies:
+        for strategy in moderation_strategies:
             if strategy.check(message):
                 await message.delete()
                 await message.channel.send(f"{message.author.name} merci de respecter les règles du serveur !")

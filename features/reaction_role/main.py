@@ -92,7 +92,17 @@ class ReactionRoleCog(commands.Cog):
         
         view = ReactionRoleView().add_item(ReactionRoleSelectMenu())
         
-        return await ctx.send('Cliquez sur le bouton !', view=view)
+        
+        embed = discord.Embed(
+            title="Veuillez choisir les rôles à ajouter !",
+            description="Cliquez sur les boutons pour selectionner un rôle !",
+            color=discord.Color.random()
+        )
+        
+        embed.set_author(icon_url=self.bot.user.display_avatar.url, name=self.bot.user.name)
+        embed.set_thumbnail(url=ctx.guild.icon.url)
+        
+        return await ctx.send(embed=embed, view=view)
 
 
 class Bot(commands.Bot):

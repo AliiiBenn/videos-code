@@ -1,5 +1,4 @@
 import os
-from sqlite3 import connect
 
 import discord
 import dotenv
