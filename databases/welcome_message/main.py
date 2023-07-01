@@ -3,6 +3,25 @@ from discord.ext import commands
 
 import os, dotenv
 
+
+class WelcomeMessageCog(commands.Cog):
+    def __init__(self, bot : commands.Cog) -> None:
+        self.bot = bot
+        
+        
+    @commands.Cog.listener("on_member_join")
+    async def send_welcome_message(self, member : discord.Member) -> discord.Message:
+        pass 
+    
+    
+    @commands.hybrid_command(name="test")
+    async def test(self, ctx : commands.Context) -> None:
+        print(ctx.guild.system_channel)
+
+
+
+
+
 class MyBot(commands.Bot):
     def __init__(self):
         super().__init__(
@@ -11,6 +30,7 @@ class MyBot(commands.Bot):
         )
 
     async def setup_hook(self) -> None:
+        await self.add_cog(WelcomeMessageCog(self))
         await self.tree.sync()
 
     async def on_ready(self):
@@ -19,25 +39,6 @@ class MyBot(commands.Bot):
         print(f'Bot is ready.')
 
 bot = MyBot()
-
-@bot.command()
-async def test(ctx : commands.Context):
-    embed1 = discord.Embed(
-        title="test1",
-    )
-    
-    embed1.add_field(name="test", value="test description", inline=True)
-    embed1.add_field(name="test", value="test description", inline=True)
-    
-    embed2 = discord.Embed(
-        title="test2",
-    )
-    
-    embed2.add_field(name="test", value="test description", inline=False)
-    embed2.add_field(name="test", value="test description", inline=False)
-    
-    await ctx.send(embed=embed1)
-    await ctx.send(embed=embed2)
 
 if __name__ == '__main__':
     dotenv.load_dotenv()
