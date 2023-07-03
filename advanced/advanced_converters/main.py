@@ -6,7 +6,7 @@ from discord.ext import commands
 
 
 
-class ExampleConverter(commands.Converter):
+class ExampleConverter(commands.Converter[str]):
     async def convert(self, ctx : commands.Context, argument : str) -> str:
         return f"Vous avez écrit {argument} !"
 

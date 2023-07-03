@@ -24,50 +24,6 @@ async def create_table(connection : aiosqlite.Connection) -> None:
     await connection.commit()
 
 
-async def add_user(connection : aiosqlite.Connection, user_id : int, username : str) -> None:
-    await connection.execute("""
-        INSERT INTO users (id, username) VALUES (?, ?)           
-    """, (user_id, username))   
-    
-    await connection.commit()                      
-    
-
-
-async def update_user(connection : aiosqlite.Connection, user_id : int, username : str) -> None:
-    await connection.execute("""
-        UPDATE users SET username = ? WHERE id = ?           
-    """, (username, user_id))   
-    
-    await connection.commit()
-
-
-async def get_user(connection : aiosqlite.Connection, user_id : int) -> User | None:
-    cursor = await connection.execute("""
-        SELECT * FROM users WHERE id = ?         
-    """, (user_id,))
-    
-    user = await cursor.fetchone()
-    
-    if user is None:
-        return None
-    
-    return User(*user)
-
-
-async def get_users(connection : aiosqlite.Connection) -> list[User]:
-    users = await connection.execute_fetchall("""SELECT * FROM users""")
-    
-    return [User(*user) for user in users]
-
-
-async def delete_user(connection : aiosqlite.Connection, user_id : int) -> None:
-    await connection.execute("""
-        DELETE FROM users WHERE id = ?         
-    """, (user_id,))
-    
-    await connection.commit()
-    
-    
     
 class UserCog(commands.Cog):
     def __init__(self, bot : commands.Bot, connection : aiosqlite.Connection) -> None:
@@ -76,38 +32,66 @@ class UserCog(commands.Cog):
         
         
     @commands.command(name="add_user")
-    async def add_user_command(self, ctx : commands.Context, user_id : int, username : str) -> None:
-        await add_user(self.connection, user_id, username)
-        await ctx.send(f"User {user_id} ajouté !")
+    async def add_user_command(self, ctx : commands.Context, user_id : int, username : str) -> discord.Message:
+        await self.connection.execute("""
+        INSERT INTO users (id, username) VALUES (?, ?)           
+        """, (user_id, username)
+        )   
+    
+        await self.connection.commit()    
+        
+         
+        return await ctx.send(f"User {user_id} ajouté !")
         
     
     @commands.command(name="update_user")
-    async def update_user_command(self, ctx : commands.Context, user_id : int, username : str) -> None:
-        await update_user(self.connection, user_id, username)
-        await ctx.send(f"User {user_id} mis à jour !")
+    async def update_user_command(self, ctx : commands.Context, user_id : int, username : str) -> discord.Message:
+        await self.connection.execute("""
+        UPDATE users SET username = ? WHERE id = ?           
+        """, (username, user_id)
+        )   
+    
+        await self.connection.commit()
+        
+        return await ctx.send(f"User {user_id} mis à jour !")
         
         
     @commands.command(name="get_user")
-    async def get_user_command(self, ctx : commands.Context, user_id : int) -> None:
-        user = await get_user(self.connection, user_id)
-        
+    async def get_user_command(self, ctx : commands.Context, user_id : int) -> discord.Message:
+        cursor = await self.connection.execute("""
+        SELECT * FROM users WHERE id = ?         
+        """, (user_id,)
+        )
+    
+        user = await cursor.fetchone()
+
         if user is None:
-            await ctx.send(f"User {user_id} introuvable !")
-            return
+            return await ctx.send(f"User {user_id} introuvable !")
+
+
+        final_user = User(*user)
         
-        await ctx.send(f"User {user.id} trouvé !")    
+        return await ctx.send(f"User {final_user.id} trouvé !")    
     
 
     @commands.command(name="get_users")
-    async def get_users_command(self, ctx : commands.Context) -> None:
-        users = await get_users(self.connection)
+    async def get_users_command(self, ctx : commands.Context) -> discord.Message:
+        users = await self.connection.execute_fetchall("""SELECT * FROM users""")
+    
+        final_users = [User(*user) for user in users]
         
-        await ctx.send(f"Users : {users}")
+        return await ctx.send(f"Users : {', '.join(user.username for user in final_users)}")
         
     
     @commands.command(name="delete_user")
     async def delete_user_command(self, ctx : commands.Context, user_id : int) -> None:
-        await delete_user(self.connection, user_id)
+        await self.connection.execute("""
+        DELETE FROM users WHERE id = ?         
+        """, (user_id,))
+    
+        await self.connection.commit()
+    
+        
         await ctx.send(f"User {user_id} supprimé !")
 
 

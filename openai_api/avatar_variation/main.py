@@ -6,6 +6,9 @@ from discord.ext import commands
 
 import openai
 
+
+# It work
+
 class ImageVariation(commands.Cog):
     def __init__(self, bot : commands.Bot) -> None:
         self.bot = bot
@@ -13,8 +16,10 @@ class ImageVariation(commands.Cog):
         
     @commands.hybrid_command(name="avatar_variation")
     async def avatar_variation(self, ctx : commands.Context, member : discord.Member) -> discord.Message:
+        await ctx.defer()
+        
         response = openai.Image.create_variation(
-            image=member.display_avatar.url,
+            image=await member.display_avatar.read(),
             n=1,
             size="256x256"
         )

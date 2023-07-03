@@ -30,7 +30,13 @@ class Bot(commands.Bot):
         for strategy in moderation_strategies:
             if strategy.check(message):
                 await message.delete()
-                await message.channel.send(f"{message.author.name} merci de respecter les règles du serveur !")
+                
+                await message.channel.send(
+                    embed=discord.Embed(
+                    title=f":x: {message.author.name} merci de respecter les règles du serveur !",
+                    color=discord.Color.red()
+                    )
+                )
                 return
             
             
