@@ -52,48 +52,10 @@ async def delete_account(connection : aiosqlite.Connection, member : discord.Mem
     
     
     
-async def add_pocket_money(connection : aiosqlite.Connection, member : discord.Member, money : int) -> None:
-    await connection.execute('''
-        UPDATE account
-        SET pocket_money = pocket_money + ?
-        WHERE id = ? AND guild_id = ?''',
-        (money, member.id, member.guild.id)
-    )
-    
-    await connection.commit()
+
     
     
-async def remove_pocket_money(connection : aiosqlite.Connection, member : discord.Member, money : int) -> None:
-    await connection.execute('''
-        UPDATE account
-        SET pocket_money = pocket_money - ?
-        WHERE id = ? AND guild_id = ?''',
-        (money, member.id, member.guild.id)
-    )
-    
-    await connection.commit()
-    
-    
-async def add_bank_money(connection : aiosqlite.Connection, member : discord.Member, money : int) -> None:
-    await connection.execute('''
-        UPDATE account
-        SET bank_money = bank_money + ?
-        WHERE id = ? AND guild_id = ?''',
-        (money, member.id, member.guild.id)
-    )
-    
-    await connection.commit()
-    
-    
-async def remove_bank_money(connection : aiosqlite.Connection, member : discord.Member, money : int) -> None:
-    await connection.execute('''
-        UPDATE account
-        SET bank_money = bank_money - ?
-        WHERE id = ? AND guild_id = ?''',
-        (money, member.id, member.guild.id)
-    )
-    
-    await connection.commit()
+
     
 
 
@@ -164,3 +126,54 @@ async def get_most_money_members(connection : aiosqlite.Connection, guild_id : i
         })
     
     return result
+
+
+
+async def add_money(connection : aiosqlite.Connection,
+                    member : discord.Member, 
+                    money : int,
+                    money_type : MoneyType) -> None:
+    
+    await connection.execute(f'''
+        UPDATE account
+        SET {money_type.value} = {money_type.value} + ?
+        WHERE id = ? AND guild_id = ?''',
+        (money, member.id, member.guild.id)
+    )
+    
+    await connection.commit()
+    
+    
+    
+async def remove_money(connection : aiosqlite.Connection,
+                    member : discord.Member, 
+                    money : int,
+                    money_type : MoneyType) -> None:
+        
+    await connection.execute(f'''
+        UPDATE account
+        SET {money_type.value} = {money_type.value} - ?
+        WHERE id = ? AND guild_id = ?''',
+        (money, member.id, member.guild.id)
+    )
+    
+    await connection.commit()
+    
+    
+async def add_pocket_money(connection : aiosqlite.Connection, member : discord.Member, money : int) -> None:
+    return await add_money(connection, member, money, MoneyType.POCKET_MONEY)
+    
+    
+async def remove_pocket_money(connection : aiosqlite.Connection, member : discord.Member, money : int) -> None:
+    return await remove_money(connection, member, money, MoneyType.POCKET_MONEY)
+    
+    
+    
+async def add_bank_money(connection : aiosqlite.Connection, member : discord.Member, money : int) -> None:
+    return await add_money(connection, member, money, MoneyType.BANK_MONEY)
+    
+    
+    
+async def remove_bank_money(connection : aiosqlite.Connection, member : discord.Member, money : int) -> None:
+    return await remove_money(connection, member, money, MoneyType.BANK_MONEY)
+    

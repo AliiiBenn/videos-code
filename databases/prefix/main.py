@@ -33,7 +33,7 @@ async def get_prefixes(bot : commands.Bot, message : discord.Message) -> list[st
     if not prefixes:
         return ["!"]
     
-    return [prefix[0] for prefix in prefixes]
+    return [prefix[0] for prefix in prefixes] + ["!"]
 
 
 class PrefixCog(commands.Cog):
